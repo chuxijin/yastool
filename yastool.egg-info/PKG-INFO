@@ -1,0 +1,440 @@
+Metadata-Version: 2.4
+Name: yastool
+Version: 0.1.0
+Summary: Yet Another Simple Toolkit for Python Projects (Logging & Decorators)
+Home-page: https://github.com/Chuxijin/yastool
+Author: Chuxijin
+Author-email: chuxijin@163.com
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: System :: Logging
+Classifier: Topic :: Utilities
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Provides-Extra: gui
+Requires-Dist: PySide6>=6.0.0; extra == "gui"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: provides-extra
+Dynamic: requires-python
+Dynamic: summary
+
+# yastool
+
+Yet Another Simple Toolkit for Python Projects (Logging & Decorators)
+
+[![PyPI version](https://badge.fury.io/py/yastool.svg)](https://badge.fury.io/py/yastool) <!-- 可选：添加 PyPI 徽章 -->
+
+## 简介
+
+`yastool` (Yet Another Simple Toolkit) 是一个为 Python 项目设计的轻量级工具包，核心目标是提供一套强大、灵活且易于使用的日志记录和函数装饰器功能。它旨在简化开发中的常见任务，如日志管理、API 请求重试、响应缓存、错误处理和性能监控。
+
+**主要特性:**
+
+*   **结构化日志:** 支持按模块和功能分类日志，自动注入上下文信息（如操作ID、错误ID）。
+*   **灵活配置:** 可通过代码轻松配置日志级别、格式、输出目标（控制台、文件）。
+*   **上下文管理:** 线程安全的日志上下文，方便追踪请求或操作流程。
+*   **实用装饰器:** 内置重试 (`@retry_on_failure`)、缓存 (`@cache_response`)、动态 User-Agent (`@use_dynamic_user_agent`)、操作日志 (`@log_operation`) 以及组合装饰器 (`@api_method`)。
+*   **错误处理:** 包含标准化的 API 异常类 (`ApiException`) 和全局异常捕获机制。
+*   **性能监控:** 可选的装饰器性能指标收集与导出。
+*   **GUI 错误提示 (可选):** 提供与 Qt (PySide6/PyQt) 集成的错误对话框显示功能。
+
+## 安装
+
+```bash
+pip install yastool
+```
+
+如果需要使用可选的 GUI 错误提示功能 (`GlobalErrorHandler.show_error`)，请确保已安装必要的 Qt 绑定和 `qfluentwidgets`：
+
+```bash
+pip install PySide6 qfluentwidgets
+# 或者
+# pip install PyQt6 qfluentwidgets
+```
+
+## 快速开始
+
+```python
+from yastool.common.logger import setup_logging, get_logger, LogContext
+from yastool.decorators.api import api_method
+from yastool.models.error_codes import ApiException
+
+# 1. 初始化日志系统 (通常在应用启动时)
+# log_format 控制日志输出格式，%(context_str)s 会自动插入上下文信息
+setup_logging(
+    log_dir='app_logs', # 日志文件目录
+    default_console_level='INFO', # 控制台级别
+    default_file_level='DEBUG', # 文件级别
+    log_format='%(asctime)s - %(levelname)s%(context_space)s%(context_str)s - %(name)s - %(message)s'
+)
+
+# 2. 获取一个带上下文的 logger
+logger = get_logger(__name__) # 使用当前模块名
+
+# 3. 使用日志和上下文
+LogContext.set("user_id", "user-abc")
+logger.info("应用启动") # 日志会自动包含 [User:user-abc]
+
+# 4. 使用装饰器增强函数 (示例：API 调用)
+class MyApiClient:
+    def __init__(self):
+        self.logger = get_logger(type(self).__name__)
+
+    @api_method(
+        operation_name="fetch_user_profile", # 日志中的操作名
+        enable_retry=True,        # 启用重试
+        max_retries=2,            # 最多重试2次
+        retry_delay=0.5,          # 基础延迟0.5秒
+        enable_cache=True,        # 启用缓存
+        cache_ttl=60,             # 缓存60秒
+        log_args=True,            # 记录函数参数
+        log_return=False          # 不记录返回值
+    )
+    def get_user_profile(self, user_id: str) -> dict:
+        self.logger.debug(f"准备获取用户 {user_id} 的信息...")
+        # 模拟 API 请求
+        import random
+        if random.random() < 0.3: # 模拟失败
+            raise ConnectionError("网络连接超时")
+        if user_id == "error":
+             raise ApiException(code=404, message="用户未找到")
+
+        # 模拟成功响应
+        return {"id": user_id, "name": "Test User", "email": "test@example.com"}
+
+# 调用示例
+client = MyApiClient()
+try:
+    profile = client.get_user_profile("user-123")
+    logger.info(f"获取用户信息成功: {profile['name']}")
+
+    # 再次调用会命中缓存 (60秒内)
+    profile_cached = client.get_user_profile("user-123")
+
+    # 触发 API 异常
+    client.get_user_profile("error")
+
+except ConnectionError as e:
+    logger.error("模拟的网络错误未被 api_method 完全处理 (因为ConnectionError不在默认重试列表):", exc_info=True)
+except ApiException as e:
+    # api_method 会记录错误，这里可以不再重复记录
+    logger.warning(f"获取用户信息时发生 API 错误: {e.message} (Code: {e.code.name}, ID: {e.error_id})")
+except Exception as e:
+    logger.exception("发生了未知错误") # 使用 log_exception 或 logger.exception
+finally:
+    LogContext.clear() # 清理当前线程的上下文
+
+## 核心功能详解
+
+### 1. 日志系统 (`yastool.common.logger`)
+
+提供了一个基于 Python 标准 `logging` 模块构建的、带上下文管理和分类的日志系统。
+
+#### 初始化 (`setup_logging`)
+
+推荐使用 `setup_logging()` 函数在应用程序启动时初始化日志系统。它会返回 `LogManager` 的单例实例。
+
+```python
+from yastool.common.logger import setup_logging
+
+log_manager = setup_logging(
+    log_dir='logs',                      # 日志文件目录 (默认 'logs')
+    default_console_level='INFO',        # 控制台日志级别 (默认 INFO)
+    default_file_level='DEBUG',          # 文件日志级别 (默认 DEBUG)
+    log_filename_format='{date}.log',    # 日志文件名格式 (默认 '{date}.log')
+    # 核心格式，%(context_str)s 用于显示上下文
+    log_format='%(asctime)s - %(levelname)s%(context_space)s%(context_str)s - %(name)s - %(message)s',
+    archive_days=30,                   # 日志文件保留天数，None 不归档 (默认 30)
+    install_global_handler=True,       # 是否安装全局异常处理器 (默认 True)
+    third_party_levels={               # 配置第三方库日志级别 (可选)
+        'requests': 'WARNING',
+        'urllib3': 'WARNING'
+    }
+)
+```
+
+#### 获取 Logger (`get_logger`)
+
+使用 `get_logger(name)` 获取一个 `ContextLogger` 实例，它会自动处理上下文注入。
+
+```python
+logger = get_logger(__name__) # 推荐使用模块名
+logger_service = get_logger('my_app.service')
+```
+
+#### 日志级别与分类
+
+*   **分类 (`LogCategory`)**: 定义了如 `UI`, `API`, `BUSINESS`, `SYSTEM`, `ERROR`, `PERFORMANCE`, `DEBUG` 等分类。
+*   **配置**: 可以按分类或模块前缀配置日志级别。
+
+```python
+from yastool.common.logger import (LogCategory, configure_category_level,
+                                   configure_module_level, set_console_level, set_file_level)
+
+# 设置 API 分类的级别为 DEBUG
+configure_category_level(LogCategory.API, 'DEBUG')
+
+# 设置所有 'my_app.api' 开头的模块级别为 DEBUG
+configure_module_level('my_app.api', 'DEBUG')
+
+# 动态调整控制台或文件级别
+set_console_level('WARNING')
+set_file_level('INFO')
+```
+
+#### 上下文管理 (`LogContext`)
+
+`LogContext` 是一个线程安全的上下文管理器，用于存储和传递操作ID、用户ID等信息。
+
+```python
+from yastool.common.logger import LogContext, generate_operation_id, generate_error_id
+
+# 设置上下文
+op_id = generate_operation_id('process_request')
+LogContext.set("operation_id", op_id)
+LogContext.set("user_id", "test_user")
+
+logger.info("处理请求中...") # 日志会自动包含 [OpID:...] [User:test_user]
+
+# 获取上下文
+current_op_id = LogContext.get("operation_id")
+all_context = LogContext.all()
+
+# 清理上下文 (通常在操作结束时)
+LogContext.clear()
+
+# 使用装饰器设置临时上下文
+@LogContext.context_wrapper(trace_id="xyz-789")
+def handle_sub_task():
+    logger.info("执行子任务") # 日志含 trace_id
+```
+
+#### 全局异常处理 (`GlobalErrorHandler`)
+
+自动捕获未处理的异常，记录详细日志，并可选择显示 GUI 错误提示。
+
+```python
+from yastool.common.logger import GlobalErrorHandler
+
+# 安装 (可在 setup_logging 中自动完成)
+# 如果需要 show_error 默认父窗口，传入主窗口实例
+# GlobalErrorHandler.install(main_window=my_qt_main_window)
+GlobalErrorHandler.install()
+
+# 手动显示 GUI 错误 (需要 Qt 和 qfluentwidgets)
+try:
+    # ... 可能出错的代码 ...
+    raise ValueError("发生了错误")
+except Exception as e:
+    # 记录日志
+    logger.exception("处理失败")
+    # 显示对话框
+    GlobalErrorHandler.show_error("操作失败", f"发生错误: {e}")
+```
+
+#### 日志格式 (`ContextFormatter`)
+
+`yastool` 使用自定义的 `ContextFormatter`。默认格式字符串为：
+`'%(asctime)s - %(levelname)s%(context_space)s%(context_str)s - %(name)s - %(message)s'`
+
+*   `%(context_str)s`: 会被替换为格式化后的上下文信息（如 `[OpID:...] [User:...]`）。
+*   `%(context_space)s`: 当上下文信息非空时，会被替换为一个空格。
+
+你可以在 `setup_logging` 时通过 `log_format` 参数提供自定义的格式字符串。
+
+#### 日志归档
+
+`LogManager` (通过 `setup_logging` 初始化) 包含一个 `archive_logs()` 方法，可以手动调用来归档旧日志。归档行为基于初始化时的 `archive_days` 参数。
+
+```python
+log_manager = setup_logging(archive_days=7)
+# ... 应用运行 ...
+# 在适当的时候（如定时任务或应用退出前）调用归档
+log_manager.archive_logs()
+```
+
+### 2. 装饰器 (`yastool.decorators.api`)
+
+提供一系列用于增强函数（特别是 API 调用）行为的装饰器。
+
+#### `@retry_on_failure`
+
+自动重试失败的操作。
+
+```python
+from yastool.decorators.api import retry_on_failure, BackoffStrategy
+from yastool.models.error_codes import RateLimitError, ServerError
+
+@retry_on_failure(
+    max_retries=3,                  # 最多重试 3 次 (总共尝试 4 次)
+    delay=1.0,                      # 基础延迟 1 秒
+    backoff=BackoffStrategy.EXPONENTIAL, # 指数退避 (1s, 2s, 4s...)
+    factor=2.0,                     # 指数因子
+    max_delay=30.0,                 # 最大延迟 30 秒
+    jitter=True,                    # 添加随机抖动
+    # 指定只在这些异常或其子类发生时重试
+    retry_on_exceptions=[ConnectionError, TimeoutError, RateLimitError, ServerError],
+    # 指定只在 ApiException 匹配这些错误码时重试
+    retry_on_api_codes=[429, 500, 502, 503, 504]
+)
+def potentially_flaky_operation():
+    # ...
+    pass
+```
+
+#### `@cache_response`
+
+缓存函数返回值以避免重复计算或请求。
+
+```python
+from yastool.decorators.api import cache_response
+
+@cache_response(ttl=300, max_size=500) # 缓存 300 秒，最多 500 条
+def get_configuration(config_name: str):
+    print(f"正在加载配置: {config_name}")
+    # ... 实际加载逻辑 ...
+    return {"key": "value"}
+
+# 第一次调用会执行函数并打印
+conf1 = get_configuration("database")
+# 第二次调用（300秒内）直接返回缓存结果，不执行函数体
+conf2 = get_configuration("database")
+
+# 访问缓存信息
+info = get_configuration.cache_info()
+print(info) # 输出: {'hits': 1, 'misses': 1, 'size': 1, ...}
+
+# 清除此函数的缓存
+get_configuration.cache_clear()
+```
+
+#### `@use_dynamic_user_agent`
+
+临时替换类方法调用的 User-Agent。需要 `self` 对象有 `_get_headers()` 或 `get_headers()` 方法。
+
+```python
+from yastool.decorators.api import use_dynamic_user_agent
+
+class WebScraper:
+    def _get_headers(self):
+        return {'Accept': 'application/json'}
+
+    @use_dynamic_user_agent('chrome') # 或 'edge', 'firefox', None (随机)
+    def fetch_page(self, url):
+        headers = self._get_headers()
+        print(f"Fetching {url} with UA: {headers.get('User-Agent')}")
+        # ... requests.get(url, headers=headers) ...
+```
+
+#### `@log_operation`
+
+自动记录函数调用的开始、结束、耗时和异常，并管理操作上下文。
+
+```python
+from yastool.decorators.api import log_operation
+
+@log_operation(
+    operation_name="process_user_data", # 自定义操作名
+    operation_type="数据处理",        # 自定义操作类型
+    log_level=logging.DEBUG,        # 设置开始/结束日志级别为 DEBUG
+    log_args=True,                  # 记录参数
+    log_return=True,                # 记录返回值 (谨慎使用)
+    sensitive_keys=['password', 'session_token'], # 需要屏蔽的参数名
+    context_attributes=['user_id'], # 从 self 提取 user_id 到日志
+    handle_exceptions=False         # 不将未知异常包装为 ApiException
+)
+def process_data(self, data: dict, password: str):
+    # ...
+    return {"status": "ok"}
+```
+
+#### `@api_method` (组合装饰器)
+
+这是一个便捷的组合装饰器，整合了日志、重试和缓存功能（User-Agent 已移除）。
+
+```python
+from yastool.decorators.api import api_method
+
+@api_method(
+    operation_name="get_item_details",
+    enable_retry=True,
+    max_retries=2,
+    retry_codes=[500, 503], # 只重试特定的 API 错误码
+    enable_cache=True,
+    cache_ttl=120,
+    log_args=True
+)
+def get_item(item_id: int):
+    # ... API 调用逻辑 ...
+    pass
+```
+
+### 3. 错误处理模型 (`yastool.models.error_codes`)
+
+定义了一组标准的异常类，继承自 `ApiException`，以及一个 `ErrorCode` 枚举。
+
+*   **`ApiException`**: 基础异常类，包含 `code` (ErrorCode 枚举成员), `message` (错误信息), 和 `error_id` (可选的唯一错误标识)。
+*   **具体异常**: 如 `NetworkError`, `TimeoutError`, `AuthenticationError`, `RateLimitError`, `ServerError`, `ValidationError`, `ResourceNotFoundError`, `OperationFailedError`, `UnknownError` 等，都继承自 `ApiException` 并关联了相应的 `ErrorCode`。
+*   **`ErrorCode`**: 包含如 `NETWORK_ERROR`, `TIMEOUT_ERROR`, `UNAUTHORIZED`, `RATE_LIMIT_ERROR`, `SERVER_ERROR` 等标准错误码。
+
+这些异常类被 `@retry_on_failure` 和 `@log_operation` 装饰器识别和处理，有助于在应用中实现一致的错误处理逻辑。
+
+### 4. 性能监控
+
+装饰器可以自动收集调用次数、错误次数、平均耗时等性能指标。
+
+```python
+from yastool.decorators.api import (
+    get_performance_metrics,
+    reset_performance_metrics,
+    export_performance_metrics_to_json
+)
+
+# ... (运行使用了 @log_operation, @retry_on_failure, @cache_response 的代码后)
+
+# 获取所有指标
+metrics = get_performance_metrics()
+print(json.dumps(metrics, indent=2))
+# 输出示例:
+# {
+#   "log_operation::get_user_profile": {
+#     "calls": 5,
+#     "errors": 1,
+#     "avg_time_ms": 150.50,
+#     "p95_time_ms": 210.00,
+#     "error_rate_percent": 20.0
+#   },
+#   "cache_response::get_user_profile": {
+#     "calls": 5,
+#     "errors": 0,
+#     "avg_time_ms": 60.20, ...
+#   }, ...
+# }
+
+# 导出指标到 JSON 文件
+export_performance_metrics_to_json("yastool_metrics.json")
+
+# 重置所有指标计数器
+reset_performance_metrics()
+```
+
+## 贡献
+
+欢迎通过提交 Issue 或 Pull Request 来贡献代码、报告问题或提出改进建议。
+
+## 许可证
+
+MIT License 

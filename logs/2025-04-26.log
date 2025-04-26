@@ -1,0 +1,366 @@
+2025-04-26 12:13:00,500 - yastool.common.logger - INFO - [MainThread:95308] - 全局异常处理器已安装。
+2025-04-26 12:13:00,500 - root - INFO - [MainThread:95308] - 日志系统初始化完成.
+2025-04-26 12:13:00,502 - yastool.common.logger - WARNING - [MainThread:95308] - 日志系统已初始化，忽略本次 setup_logging 的参数。如需更改配置，请使用 LogManager 的实例方法。
+2025-04-26 12:13:00,502 - __main__ - INFO - [MainThread:95308] - ===== 开始 yastool 使用演示 =====
+2025-04-26 12:13:00,502 - __main__ - INFO - [MainThread:95308] - 
+----- 场景 1: 首次成功调用 -----
+2025-04-26 12:13:00,504 - MockApiClient - INFO [OpID:get_mock_data_1745640780504] [Other:request_type=initial_fetch,ctx_call_count=0] - [MainThread:95308] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '0'}, Args: {'arg_0': "'item-001'"})
+2025-04-26 12:13:00,504 - MockApiClient - INFO [OpID:get_mock_data_1745640780504] [RetryID:retry_fetch_data_1745640780504] [Other:request_type=initial_fetch] - [MainThread:95308] - 内部调用 fetch_data (第 1 次)
+2025-04-26 12:13:00,735 - MockApiClient - INFO [OpID:get_mock_data_1745640780504] [RetryID:retry_fetch_data_1745640780504] [Other:request_type=initial_fetch] - [MainThread:95308] - 成功获取项目 item-001 的数据
+2025-04-26 12:13:00,735 - MockApiClient - INFO [OpID:get_mock_data_1745640780504] [RetryID:retry_fetch_data_1745640780504] [Other:request_type=initial_fetch] - [MainThread:95308] - 查询/获取: 完成 - get_mock_data. 耗时: 235.00ms, 返回值: {'id': 'item-001', 'data': 'Data for item-001', 'timestamp': 1745640780.7358327, 'internal_call_count': 1}
+2025-04-26 12:13:00,736 - __main__ - INFO [RetryID:retry_fetch_data_1745640780504] [Other:request_type=initial_fetch] - [MainThread:95308] - 场景 1 结果: Data for item-001
+2025-04-26 12:13:00,837 - __main__ - INFO - [MainThread:95308] - 
+----- 场景 2: 缓存命中 (2秒内) -----
+2025-04-26 12:13:00,837 - MockApiClient - INFO [OpID:get_mock_data_1745640780837] [Other:request_type=cached_fetch,ctx_call_count=1] - [MainThread:95308] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '1'}, Args: {'arg_0': "'item-001'"})
+2025-04-26 12:13:00,837 - MockApiClient - INFO [OpID:get_mock_data_1745640780837] [Other:request_type=cached_fetch] - [MainThread:95308] - 查询/获取: 完成 - get_mock_data. 耗时: 0.00ms, 返回值: {'id': 'item-001', 'data': 'Data for item-001', 'timestamp': 1745640780.7358327, 'internal_call_count': 1}
+2025-04-26 12:13:00,837 - __main__ - INFO [Other:request_type=cached_fetch] - [MainThread:95308] - 场景 2 结果: Data for item-001 (应与场景1时间戳相同或接近)
+2025-04-26 12:13:00,838 - __main__ - INFO [Other:request_type=cached_fetch] - [MainThread:95308] - 缓存命中验证成功!
+2025-04-26 12:13:00,838 - __main__ - INFO - [MainThread:95308] - 
+----- 场景 3: 缓存失效 (等待超过2秒) -----
+2025-04-26 12:13:00,838 - __main__ - INFO - [MainThread:95308] - 等待 2.5 秒使缓存失效...
+2025-04-26 12:13:03,339 - MockApiClient - INFO [OpID:get_mock_data_1745640783339] [Other:request_type=expired_cache_fetch,ctx_call_count=1] - [MainThread:95308] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '1'}, Args: {'arg_0': "'item-001'"})
+2025-04-26 12:13:03,339 - MockApiClient - INFO [OpID:get_mock_data_1745640783339] [RetryID:retry_fetch_data_1745640783339] [Other:request_type=expired_cache_fetch] - [MainThread:95308] - 内部调用 fetch_data (第 2 次)
+2025-04-26 12:13:03,447 - MockApiClient - INFO [OpID:get_mock_data_1745640783339] [RetryID:retry_fetch_data_1745640783339] [Other:request_type=expired_cache_fetch] - [MainThread:95308] - 成功获取项目 item-001 的数据
+2025-04-26 12:13:03,447 - MockApiClient - INFO [OpID:get_mock_data_1745640783339] [RetryID:retry_fetch_data_1745640783339] [Other:request_type=expired_cache_fetch] - [MainThread:95308] - 查询/获取: 完成 - get_mock_data. 耗时: 109.00ms, 返回值: {'id': 'item-001', 'data': 'Data for item-001', 'timestamp': 1745640783.44787, 'internal_call_count': 2}
+2025-04-26 12:13:03,448 - __main__ - INFO [RetryID:retry_fetch_data_1745640783339] [Other:request_type=expired_cache_fetch] - [MainThread:95308] - 场景 3 结果: Data for item-001 (时间戳应更新)
+2025-04-26 12:13:03,448 - __main__ - INFO [RetryID:retry_fetch_data_1745640783339] [Other:request_type=expired_cache_fetch] - [MainThread:95308] - 缓存失效验证成功!
+2025-04-26 12:13:03,448 - __main__ - INFO - [MainThread:95308] - 
+----- 场景 4: 可重试的网络错误 -----
+2025-04-26 12:13:03,448 - MockApiClient - INFO [OpID:get_mock_data_1745640783448] [Other:request_type=retry_network,ctx_call_count=2] - [MainThread:95308] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '2'}, Args: {'arg_0': "'item-002'", 'force_error': "'network'"})
+2025-04-26 12:13:03,448 - MockApiClient - INFO [OpID:get_mock_data_1745640783448] [RetryID:retry_fetch_data_1745640783448] [Other:request_type=retry_network] - [MainThread:95308] - 内部调用 fetch_data (第 3 次)
+2025-04-26 12:13:03,449 - MockApiClient - WARNING [OpID:get_mock_data_1745640783448] [RetryID:retry_fetch_data_1745640783448] [Other:request_type=retry_network] - [MainThread:95308] - 模拟网络错误 (第 1 次)
+2025-04-26 12:13:03,449 - MockApiClient - WARNING [OpID:get_mock_data_1745640783448] [ErrID:retry_attempt_1_fetch_data_1745640783449] [RetryID:retry_fetch_data_1745640783448] [Other:request_type=retry_network] - [MainThread:95308] - 操作失败将重试: fetch_data 尝试 1/4 失败。 错误: ConnectionError('模拟的网络连接中断') [ErrorID: retry_attempt_1_fetch_data_1745640783449]. 等待 0.22 秒后重试...
+2025-04-26 12:13:03,673 - MockApiClient - INFO [OpID:get_mock_data_1745640783448] [RetryID:retry_fetch_data_1745640783448] [Other:request_type=retry_network] - [MainThread:95308] - 内部调用 fetch_data (第 4 次)
+2025-04-26 12:13:03,673 - MockApiClient - WARNING [OpID:get_mock_data_1745640783448] [RetryID:retry_fetch_data_1745640783448] [Other:request_type=retry_network] - [MainThread:95308] - 模拟网络错误 (第 2 次)
+2025-04-26 12:13:03,674 - MockApiClient - WARNING [OpID:get_mock_data_1745640783448] [ErrID:retry_attempt_2_fetch_data_1745640783674] [RetryID:retry_fetch_data_1745640783448] [Other:request_type=retry_network] - [MainThread:95308] - 操作失败将重试: fetch_data 尝试 2/4 失败。 错误: ConnectionError('模拟的网络连接中断') [ErrorID: retry_attempt_2_fetch_data_1745640783674]. 等待 0.51 秒后重试...
+2025-04-26 12:13:04,187 - MockApiClient - INFO [OpID:get_mock_data_1745640783448] [RetryID:retry_fetch_data_1745640783448] [Other:request_type=retry_network] - [MainThread:95308] - 内部调用 fetch_data (第 5 次)
+2025-04-26 12:13:04,187 - MockApiClient - INFO [OpID:get_mock_data_1745640783448] [RetryID:retry_fetch_data_1745640783448] [Other:request_type=retry_network] - [MainThread:95308] - 网络错误后恢复
+2025-04-26 12:13:04,359 - MockApiClient - INFO [OpID:get_mock_data_1745640783448] [RetryID:retry_fetch_data_1745640783448] [Other:request_type=retry_network] - [MainThread:95308] - 成功获取项目 item-002 的数据
+2025-04-26 12:13:04,359 - MockApiClient - INFO [OpID:get_mock_data_1745640783448] [RetryID:retry_fetch_data_1745640783448] [Other:request_type=retry_network] - [MainThread:95308] - 重试成功: fetch_data 在第 3 次尝试成功。
+2025-04-26 12:13:04,359 - MockApiClient - INFO [OpID:get_mock_data_1745640783448] [RetryID:retry_fetch_data_1745640783448] [Other:request_type=retry_network] - [MainThread:95308] - 查询/获取: 完成 - get_mock_data. 耗时: 907.00ms, 返回值: {'id': 'item-002', 'data': 'Data for item-002', 'timestamp': 1745640784.3590808, 'internal_call_count': 5}
+2025-04-26 12:13:04,360 - __main__ - INFO [RetryID:retry_fetch_data_1745640783448] [Other:request_type=retry_network] - [MainThread:95308] - 场景 4 结果: Data for item-002 (经历重试后成功)
+2025-04-26 12:13:04,360 - __main__ - INFO - [MainThread:95308] - 
+----- 场景 5: 可重试的 API 限流错误 -----
+2025-04-26 12:13:04,360 - MockApiClient - INFO [OpID:get_mock_data_1745640784360] [Other:request_type=retry_ratelimit,ctx_call_count=5] - [MainThread:95308] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '5'}, Args: {'arg_0': "'item-003'", 'force_error': "'ratelimit'"})
+2025-04-26 12:13:04,361 - MockApiClient - INFO [OpID:get_mock_data_1745640784360] [RetryID:retry_fetch_data_1745640784361] [Other:request_type=retry_ratelimit] - [MainThread:95308] - 内部调用 fetch_data (第 6 次)
+2025-04-26 12:13:04,361 - MockApiClient - WARNING [OpID:get_mock_data_1745640784360] [RetryID:retry_fetch_data_1745640784361] [Other:request_type=retry_ratelimit] - [MainThread:95308] - 模拟触发速率限制 (第 1 次)
+2025-04-26 12:13:04,361 - MockApiClient - WARNING [OpID:get_mock_data_1745640784360] [ErrID:retry_attempt_1_fetch_data_1745640784361] [RetryID:retry_fetch_data_1745640784361] [Other:request_type=retry_ratelimit] - [MainThread:95308] - 操作失败将重试: fetch_data 尝试 1/4 失败。 错误: ApiException('Error 1004 (RATE_LIMIT_ERROR): 请求过于频繁') (Code: RATE_LIMIT_ERROR) [ErrorID: retry_attempt_1_fetch_data_1745640784361]. 等待 0.26 秒后重试...
+2025-04-26 12:13:04,626 - MockApiClient - INFO [OpID:get_mock_data_1745640784360] [RetryID:retry_fetch_data_1745640784361] [Other:request_type=retry_ratelimit] - [MainThread:95308] - 内部调用 fetch_data (第 7 次)
+2025-04-26 12:13:04,626 - MockApiClient - WARNING [OpID:get_mock_data_1745640784360] [RetryID:retry_fetch_data_1745640784361] [Other:request_type=retry_ratelimit] - [MainThread:95308] - 模拟触发速率限制 (第 2 次)
+2025-04-26 12:13:04,626 - MockApiClient - WARNING [OpID:get_mock_data_1745640784360] [ErrID:retry_attempt_2_fetch_data_1745640784626] [RetryID:retry_fetch_data_1745640784361] [Other:request_type=retry_ratelimit] - [MainThread:95308] - 操作失败将重试: fetch_data 尝试 2/4 失败。 错误: ApiException('Error 1004 (RATE_LIMIT_ERROR): 请求过于频繁') (Code: RATE_LIMIT_ERROR) [ErrorID: retry_attempt_2_fetch_data_1745640784626]. 等待 0.50 秒后重试...
+2025-04-26 12:13:05,132 - MockApiClient - INFO [OpID:get_mock_data_1745640784360] [RetryID:retry_fetch_data_1745640784361] [Other:request_type=retry_ratelimit] - [MainThread:95308] - 内部调用 fetch_data (第 8 次)
+2025-04-26 12:13:05,132 - MockApiClient - INFO [OpID:get_mock_data_1745640784360] [RetryID:retry_fetch_data_1745640784361] [Other:request_type=retry_ratelimit] - [MainThread:95308] - 速率限制解除
+2025-04-26 12:13:05,392 - MockApiClient - INFO [OpID:get_mock_data_1745640784360] [RetryID:retry_fetch_data_1745640784361] [Other:request_type=retry_ratelimit] - [MainThread:95308] - 成功获取项目 item-003 的数据
+2025-04-26 12:13:05,392 - MockApiClient - INFO [OpID:get_mock_data_1745640784360] [RetryID:retry_fetch_data_1745640784361] [Other:request_type=retry_ratelimit] - [MainThread:95308] - 重试成功: fetch_data 在第 3 次尝试成功。
+2025-04-26 12:13:05,392 - MockApiClient - INFO [OpID:get_mock_data_1745640784360] [RetryID:retry_fetch_data_1745640784361] [Other:request_type=retry_ratelimit] - [MainThread:95308] - 查询/获取: 完成 - get_mock_data. 耗时: 1031.00ms, 返回值: {'id': 'item-003', 'data': 'Data for item-003', 'timestamp': 1745640785.3922904, 'internal_call_count': 8}
+2025-04-26 12:13:05,393 - __main__ - INFO [RetryID:retry_fetch_data_1745640784361] [Other:request_type=retry_ratelimit] - [MainThread:95308] - 场景 5 结果: Data for item-003 (速率限制后成功)
+2025-04-26 12:13:05,393 - __main__ - INFO - [MainThread:95308] - 
+----- 场景 6: 不可重试的 API 错误 (NotFound) -----
+2025-04-26 12:13:05,393 - MockApiClient - INFO [OpID:get_mock_data_1745640785393] [Other:request_type=non_retryable_api_error,ctx_call_count=8] - [MainThread:95308] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '8'}, Args: {'arg_0': "'item-unknown'", 'force_error': "'notfound'"})
+2025-04-26 12:13:05,395 - MockApiClient - INFO [OpID:get_mock_data_1745640785393] [RetryID:retry_fetch_data_1745640785395] [Other:request_type=non_retryable_api_error] - [MainThread:95308] - 内部调用 fetch_data (第 9 次)
+2025-04-26 12:13:05,395 - MockApiClient - WARNING [OpID:get_mock_data_1745640785393] [RetryID:retry_fetch_data_1745640785395] [Other:request_type=non_retryable_api_error] - [MainThread:95308] - 模拟资源未找到错误
+2025-04-26 12:13:05,396 - MockApiClient - WARNING [OpID:get_mock_data_1745640785393] [RetryID:retry_fetch_data_1745640785395] [Other:request_type=non_retryable_api_error] - [MainThread:95308] - 重试终止: fetch_data 失败，尝试 1/4 次。 错误: ApiException('Error 4004 (RESOURCE_NOT_FOUND): 项目 item-unknown 未找到') (Code: RESOURCE_NOT_FOUND) [ErrorID: None] (不可重试)
+2025-04-26 12:13:05,396 - MockApiClient - ERROR [OpID:get_mock_data_1745640785393] [ErrID:api_RESOURCE_NOT_FOUND_get_mock_data_1745640785396] [RetryID:retry_fetch_data_1745640785395] [Other:request_type=non_retryable_api_error] - [MainThread:95308] - 查询/获取: 失败 - get_mock_data. Code: RESOURCE_NOT_FOUND, Msg: 项目 item-unknown 未找到
+2025-04-26 12:13:05,397 - __main__ - INFO [RetryID:retry_fetch_data_1745640785395] [Other:request_type=non_retryable_api_error] - [MainThread:95308] - 场景 6 成功捕获 NotFound 错误: 项目 item-unknown 未找到 (ErrID: None)
+2025-04-26 12:13:05,397 - __main__ - INFO - [MainThread:95308] - 
+----- 场景 7: 捕获其他异常 -----
+2025-04-26 12:13:05,400 - global_errors - CRITICAL - [MainThread:95308] - [全局异常 ErrID:global_KeyError_1745640785398] 捕获到未处理的异常: KeyError: 'extra'\n详细堆栈跟踪:\nTraceback (most recent call last):
+  File "d:\100-Work\101_Programming\Projs\01.python_projs\yastool\tests\test_usage.py", line 198, in run_demo
+    result = 10 / 0
+             ~~~^~~
+ZeroDivisionError: division by zero
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "d:\100-Work\101_Programming\Projs\01.python_projs\yastool\tests\test_usage.py", line 211, in <module>
+    run_demo()
+  File "d:\100-Work\101_Programming\Projs\01.python_projs\yastool\tests\test_usage.py", line 201, in run_demo
+    log_exception(logger_name=__name__, message="计算失败")
+  File "D:\100-Work\101_Programming\Env\pythonEnv\pyenv-win\versions\3.11.5\Lib\site-packages\yastool\common\logger.py", line 959, in log_exception
+    logger.error(
+  File "D:\100-Work\101_Programming\Env\pythonEnv\pyenv-win\versions\3.11.5\Lib\site-packages\yastool\common\logger.py", line 381, in error
+    self._logger.error(msg, *args, extra={'log_context': log_ctx}, **kwargs)
+KeyError: 'extra'
+
+2025-04-26 12:16:21,540 - yastool.common.logger - INFO - [MainThread:96868] - 全局异常处理器已安装。
+2025-04-26 12:16:21,540 - root - INFO - [MainThread:96868] - 日志系统初始化完成.
+2025-04-26 12:16:21,542 - yastool.common.logger - WARNING - [MainThread:96868] - 日志系统已初始化，忽略本次 setup_logging 的参数。如需更改配置，请使用 LogManager 的实例方法。
+2025-04-26 12:16:21,542 - __main__ - INFO - [MainThread:96868] - ===== 开始 yastool 使用演示 =====
+2025-04-26 12:16:21,542 - __main__ - INFO - [MainThread:96868] - 
+----- 场景 1: 首次成功调用 -----
+2025-04-26 12:16:21,542 - MockApiClient - INFO [OpID:get_mock_data_1745640981542] [Other:request_type=initial_fetch,ctx_call_count=0] - [MainThread:96868] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '0'}, Args: {'arg_0': "'item-001'"})
+2025-04-26 12:16:21,543 - MockApiClient - INFO [OpID:get_mock_data_1745640981542] [RetryID:retry_fetch_data_1745640981543] [Other:request_type=initial_fetch] - [MainThread:96868] - 内部调用 fetch_data (第 1 次)
+2025-04-26 12:16:21,774 - MockApiClient - INFO [OpID:get_mock_data_1745640981542] [RetryID:retry_fetch_data_1745640981543] [Other:request_type=initial_fetch] - [MainThread:96868] - 成功获取项目 item-001 的数据
+2025-04-26 12:16:21,775 - MockApiClient - INFO [OpID:get_mock_data_1745640981542] [RetryID:retry_fetch_data_1745640981543] [Other:request_type=initial_fetch] - [MainThread:96868] - 查询/获取: 完成 - get_mock_data. 耗时: 234.00ms, 返回值: {'id': 'item-001', 'data': 'Data for item-001', 'timestamp': 1745640981.7748866, 'internal_call_count': 1}
+2025-04-26 12:16:21,775 - __main__ - INFO [RetryID:retry_fetch_data_1745640981543] [Other:request_type=initial_fetch] - [MainThread:96868] - 场景 1 结果: Data for item-001
+2025-04-26 12:16:21,876 - __main__ - INFO - [MainThread:96868] - 
+----- 场景 2: 缓存命中 (2秒内) -----
+2025-04-26 12:16:21,876 - MockApiClient - INFO [OpID:get_mock_data_1745640981876] [Other:request_type=cached_fetch,ctx_call_count=1] - [MainThread:96868] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '1'}, Args: {'arg_0': "'item-001'"})
+2025-04-26 12:16:21,876 - MockApiClient - INFO [OpID:get_mock_data_1745640981876] [Other:request_type=cached_fetch] - [MainThread:96868] - 查询/获取: 完成 - get_mock_data. 耗时: 0.00ms, 返回值: {'id': 'item-001', 'data': 'Data for item-001', 'timestamp': 1745640981.7748866, 'internal_call_count': 1}
+2025-04-26 12:16:21,877 - __main__ - INFO [Other:request_type=cached_fetch] - [MainThread:96868] - 场景 2 结果: Data for item-001 (应与场景1时间戳相同或接近)
+2025-04-26 12:16:21,877 - __main__ - INFO [Other:request_type=cached_fetch] - [MainThread:96868] - 缓存命中验证成功!
+2025-04-26 12:16:21,877 - __main__ - INFO - [MainThread:96868] - 
+----- 场景 3: 缓存失效 (等待超过2秒) -----
+2025-04-26 12:16:21,877 - __main__ - INFO - [MainThread:96868] - 等待 2.5 秒使缓存失效...
+2025-04-26 12:16:24,378 - MockApiClient - INFO [OpID:get_mock_data_1745640984378] [Other:request_type=expired_cache_fetch,ctx_call_count=1] - [MainThread:96868] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '1'}, Args: {'arg_0': "'item-001'"})
+2025-04-26 12:16:24,378 - MockApiClient - INFO [OpID:get_mock_data_1745640984378] [RetryID:retry_fetch_data_1745640984378] [Other:request_type=expired_cache_fetch] - [MainThread:96868] - 内部调用 fetch_data (第 2 次)
+2025-04-26 12:16:24,518 - MockApiClient - INFO [OpID:get_mock_data_1745640984378] [RetryID:retry_fetch_data_1745640984378] [Other:request_type=expired_cache_fetch] - [MainThread:96868] - 成功获取项目 item-001 的数据
+2025-04-26 12:16:24,518 - MockApiClient - INFO [OpID:get_mock_data_1745640984378] [RetryID:retry_fetch_data_1745640984378] [Other:request_type=expired_cache_fetch] - [MainThread:96868] - 查询/获取: 完成 - get_mock_data. 耗时: 141.00ms, 返回值: {'id': 'item-001', 'data': 'Data for item-001', 'timestamp': 1745640984.5188909, 'internal_call_count': 2}
+2025-04-26 12:16:24,518 - __main__ - INFO [RetryID:retry_fetch_data_1745640984378] [Other:request_type=expired_cache_fetch] - [MainThread:96868] - 场景 3 结果: Data for item-001 (时间戳应更新)
+2025-04-26 12:16:24,519 - __main__ - INFO [RetryID:retry_fetch_data_1745640984378] [Other:request_type=expired_cache_fetch] - [MainThread:96868] - 缓存失效验证成功!
+2025-04-26 12:16:24,519 - __main__ - INFO - [MainThread:96868] - 
+----- 场景 4: 可重试的网络错误 -----
+2025-04-26 12:16:24,519 - MockApiClient - INFO [OpID:get_mock_data_1745640984519] [Other:request_type=retry_network,ctx_call_count=2] - [MainThread:96868] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '2'}, Args: {'arg_0': "'item-002'", 'force_error': "'network'"})
+2025-04-26 12:16:24,519 - MockApiClient - INFO [OpID:get_mock_data_1745640984519] [RetryID:retry_fetch_data_1745640984519] [Other:request_type=retry_network] - [MainThread:96868] - 内部调用 fetch_data (第 3 次)
+2025-04-26 12:16:24,519 - MockApiClient - WARNING [OpID:get_mock_data_1745640984519] [RetryID:retry_fetch_data_1745640984519] [Other:request_type=retry_network] - [MainThread:96868] - 模拟网络错误 (第 1 次)
+2025-04-26 12:16:24,519 - MockApiClient - WARNING [OpID:get_mock_data_1745640984519] [ErrID:retry_attempt_1_fetch_data_1745640984519] [RetryID:retry_fetch_data_1745640984519] [Other:request_type=retry_network] - [MainThread:96868] - 操作失败将重试: fetch_data 尝试 1/4 失败。 错误: ConnectionError('模拟的网络连接中断') [ErrorID: retry_attempt_1_fetch_data_1745640984519]. 等待 0.25 秒后重试...
+2025-04-26 12:16:24,768 - MockApiClient - INFO [OpID:get_mock_data_1745640984519] [RetryID:retry_fetch_data_1745640984519] [Other:request_type=retry_network] - [MainThread:96868] - 内部调用 fetch_data (第 4 次)
+2025-04-26 12:16:24,768 - MockApiClient - WARNING [OpID:get_mock_data_1745640984519] [RetryID:retry_fetch_data_1745640984519] [Other:request_type=retry_network] - [MainThread:96868] - 模拟网络错误 (第 2 次)
+2025-04-26 12:16:24,768 - MockApiClient - WARNING [OpID:get_mock_data_1745640984519] [ErrID:retry_attempt_2_fetch_data_1745640984768] [RetryID:retry_fetch_data_1745640984519] [Other:request_type=retry_network] - [MainThread:96868] - 操作失败将重试: fetch_data 尝试 2/4 失败。 错误: ConnectionError('模拟的网络连接中断') [ErrorID: retry_attempt_2_fetch_data_1745640984768]. 等待 0.48 秒后重试...
+2025-04-26 12:16:25,254 - MockApiClient - INFO [OpID:get_mock_data_1745640984519] [RetryID:retry_fetch_data_1745640984519] [Other:request_type=retry_network] - [MainThread:96868] - 内部调用 fetch_data (第 5 次)
+2025-04-26 12:16:25,254 - MockApiClient - INFO [OpID:get_mock_data_1745640984519] [RetryID:retry_fetch_data_1745640984519] [Other:request_type=retry_network] - [MainThread:96868] - 网络错误后恢复
+2025-04-26 12:16:25,398 - MockApiClient - INFO [OpID:get_mock_data_1745640984519] [RetryID:retry_fetch_data_1745640984519] [Other:request_type=retry_network] - [MainThread:96868] - 成功获取项目 item-002 的数据
+2025-04-26 12:16:25,398 - MockApiClient - INFO [OpID:get_mock_data_1745640984519] [RetryID:retry_fetch_data_1745640984519] [Other:request_type=retry_network] - [MainThread:96868] - 重试成功: fetch_data 在第 3 次尝试成功。
+2025-04-26 12:16:25,398 - MockApiClient - INFO [OpID:get_mock_data_1745640984519] [RetryID:retry_fetch_data_1745640984519] [Other:request_type=retry_network] - [MainThread:96868] - 查询/获取: 完成 - get_mock_data. 耗时: 890.00ms, 返回值: {'id': 'item-002', 'data': 'Data for item-002', 'timestamp': 1745640985.3985548, 'internal_call_count': 5}
+2025-04-26 12:16:25,399 - __main__ - INFO [RetryID:retry_fetch_data_1745640984519] [Other:request_type=retry_network] - [MainThread:96868] - 场景 4 结果: Data for item-002 (经历重试后成功)
+2025-04-26 12:16:25,399 - __main__ - INFO - [MainThread:96868] - 
+----- 场景 5: 可重试的 API 限流错误 -----
+2025-04-26 12:16:25,399 - MockApiClient - INFO [OpID:get_mock_data_1745640985399] [Other:request_type=retry_ratelimit,ctx_call_count=5] - [MainThread:96868] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '5'}, Args: {'arg_0': "'item-003'", 'force_error': "'ratelimit'"})
+2025-04-26 12:16:25,399 - MockApiClient - INFO [OpID:get_mock_data_1745640985399] [RetryID:retry_fetch_data_1745640985399] [Other:request_type=retry_ratelimit] - [MainThread:96868] - 内部调用 fetch_data (第 6 次)
+2025-04-26 12:16:25,399 - MockApiClient - WARNING [OpID:get_mock_data_1745640985399] [RetryID:retry_fetch_data_1745640985399] [Other:request_type=retry_ratelimit] - [MainThread:96868] - 模拟触发速率限制 (第 1 次)
+2025-04-26 12:16:25,400 - MockApiClient - WARNING [OpID:get_mock_data_1745640985399] [ErrID:retry_attempt_1_fetch_data_1745640985400] [RetryID:retry_fetch_data_1745640985399] [Other:request_type=retry_ratelimit] - [MainThread:96868] - 操作失败将重试: fetch_data 尝试 1/4 失败。 错误: ApiException('Error 1004 (RATE_LIMIT_ERROR): 请求过于频繁') (Code: RATE_LIMIT_ERROR) [ErrorID: retry_attempt_1_fetch_data_1745640985400]. 等待 0.26 秒后重试...
+2025-04-26 12:16:25,660 - MockApiClient - INFO [OpID:get_mock_data_1745640985399] [RetryID:retry_fetch_data_1745640985399] [Other:request_type=retry_ratelimit] - [MainThread:96868] - 内部调用 fetch_data (第 7 次)
+2025-04-26 12:16:25,660 - MockApiClient - WARNING [OpID:get_mock_data_1745640985399] [RetryID:retry_fetch_data_1745640985399] [Other:request_type=retry_ratelimit] - [MainThread:96868] - 模拟触发速率限制 (第 2 次)
+2025-04-26 12:16:25,660 - MockApiClient - WARNING [OpID:get_mock_data_1745640985399] [ErrID:retry_attempt_2_fetch_data_1745640985660] [RetryID:retry_fetch_data_1745640985399] [Other:request_type=retry_ratelimit] - [MainThread:96868] - 操作失败将重试: fetch_data 尝试 2/4 失败。 错误: ApiException('Error 1004 (RATE_LIMIT_ERROR): 请求过于频繁') (Code: RATE_LIMIT_ERROR) [ErrorID: retry_attempt_2_fetch_data_1745640985660]. 等待 0.53 秒后重试...
+2025-04-26 12:16:26,195 - MockApiClient - INFO [OpID:get_mock_data_1745640985399] [RetryID:retry_fetch_data_1745640985399] [Other:request_type=retry_ratelimit] - [MainThread:96868] - 内部调用 fetch_data (第 8 次)
+2025-04-26 12:16:26,195 - MockApiClient - INFO [OpID:get_mock_data_1745640985399] [RetryID:retry_fetch_data_1745640985399] [Other:request_type=retry_ratelimit] - [MainThread:96868] - 速率限制解除
+2025-04-26 12:16:26,462 - MockApiClient - INFO [OpID:get_mock_data_1745640985399] [RetryID:retry_fetch_data_1745640985399] [Other:request_type=retry_ratelimit] - [MainThread:96868] - 成功获取项目 item-003 的数据
+2025-04-26 12:16:26,462 - MockApiClient - INFO [OpID:get_mock_data_1745640985399] [RetryID:retry_fetch_data_1745640985399] [Other:request_type=retry_ratelimit] - [MainThread:96868] - 重试成功: fetch_data 在第 3 次尝试成功。
+2025-04-26 12:16:26,463 - MockApiClient - INFO [OpID:get_mock_data_1745640985399] [RetryID:retry_fetch_data_1745640985399] [Other:request_type=retry_ratelimit] - [MainThread:96868] - 查询/获取: 完成 - get_mock_data. 耗时: 1063.00ms, 返回值: {'id': 'item-003', 'data': 'Data for item-003', 'timestamp': 1745640986.4621701, 'internal_call_count': 8}
+2025-04-26 12:16:26,463 - __main__ - INFO [RetryID:retry_fetch_data_1745640985399] [Other:request_type=retry_ratelimit] - [MainThread:96868] - 场景 5 结果: Data for item-003 (速率限制后成功)
+2025-04-26 12:16:26,463 - __main__ - INFO - [MainThread:96868] - 
+----- 场景 6: 不可重试的 API 错误 (NotFound) -----
+2025-04-26 12:16:26,463 - MockApiClient - INFO [OpID:get_mock_data_1745640986463] [Other:request_type=non_retryable_api_error,ctx_call_count=8] - [MainThread:96868] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '8'}, Args: {'arg_0': "'item-unknown'", 'force_error': "'notfound'"})
+2025-04-26 12:16:26,464 - MockApiClient - INFO [OpID:get_mock_data_1745640986463] [RetryID:retry_fetch_data_1745640986464] [Other:request_type=non_retryable_api_error] - [MainThread:96868] - 内部调用 fetch_data (第 9 次)
+2025-04-26 12:16:26,464 - MockApiClient - WARNING [OpID:get_mock_data_1745640986463] [RetryID:retry_fetch_data_1745640986464] [Other:request_type=non_retryable_api_error] - [MainThread:96868] - 模拟资源未找到错误
+2025-04-26 12:16:26,464 - MockApiClient - WARNING [OpID:get_mock_data_1745640986463] [RetryID:retry_fetch_data_1745640986464] [Other:request_type=non_retryable_api_error] - [MainThread:96868] - 重试终止: fetch_data 失败，尝试 1/4 次。 错误: ApiException('Error 4004 (RESOURCE_NOT_FOUND): 项目 item-unknown 未找到') (Code: RESOURCE_NOT_FOUND) [ErrorID: None] (不可重试)
+2025-04-26 12:16:26,464 - MockApiClient - ERROR [OpID:get_mock_data_1745640986463] [ErrID:api_RESOURCE_NOT_FOUND_get_mock_data_1745640986464] [RetryID:retry_fetch_data_1745640986464] [Other:request_type=non_retryable_api_error] - [MainThread:96868] - 查询/获取: 失败 - get_mock_data. Code: RESOURCE_NOT_FOUND, Msg: 项目 item-unknown 未找到
+2025-04-26 12:16:26,465 - __main__ - INFO [RetryID:retry_fetch_data_1745640986464] [Other:request_type=non_retryable_api_error] - [MainThread:96868] - 场景 6 成功捕获 NotFound 错误: 项目 item-unknown 未找到 (ErrID: None)
+2025-04-26 12:16:26,465 - __main__ - INFO - [MainThread:96868] - 
+----- 场景 7: 捕获其他异常 -----
+2025-04-26 12:16:26,468 - global_errors - CRITICAL - [MainThread:96868] - [全局异常 ErrID:global_KeyError_1745640986466] 捕获到未处理的异常: KeyError: 'extra'\n详细堆栈跟踪:\nTraceback (most recent call last):
+  File "D:\100-Work\101_Programming\Projs\01.python_projs\yastool\tests\test_usage.py", line 198, in run_demo
+    result = 10 / 0
+             ~~~^~~
+ZeroDivisionError: division by zero
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\100-Work\101_Programming\Projs\01.python_projs\yastool\tests\test_usage.py", line 211, in <module>
+    run_demo()
+  File "D:\100-Work\101_Programming\Projs\01.python_projs\yastool\tests\test_usage.py", line 201, in run_demo
+    log_exception(logger_name=__name__, message="计算失败")
+  File "D:\100-Work\101_Programming\Env\pythonEnv\pyenv-win\versions\3.11.5\Lib\site-packages\yastool\common\logger.py", line 959, in log_exception
+    logger.error(
+  File "D:\100-Work\101_Programming\Env\pythonEnv\pyenv-win\versions\3.11.5\Lib\site-packages\yastool\common\logger.py", line 381, in error
+    self._logger.error(msg, *args, extra={'log_context': log_ctx}, **kwargs)
+KeyError: 'extra'
+
+2025-04-26 12:20:15,902 - yastool.common.logger - INFO - [MainThread:95076] - 全局异常处理器已安装。
+2025-04-26 12:20:15,902 - root - INFO - [MainThread:95076] - 日志系统初始化完成.
+2025-04-26 12:20:15,904 - yastool.common.logger - WARNING - [MainThread:95076] - 日志系统已初始化，忽略本次 setup_logging 的参数。如需更改配置，请使用 LogManager 的实例方法。
+2025-04-26 12:20:15,905 - __main__ - INFO - [MainThread:95076] - ===== 开始 yastool 使用演示 =====
+2025-04-26 12:20:15,905 - __main__ - INFO - [MainThread:95076] - 
+----- 场景 1: 首次成功调用 -----
+2025-04-26 12:20:15,905 - MockApiClient - INFO [OpID:get_mock_data_1745641215905] [Other:request_type=initial_fetch,ctx_call_count=0] - [MainThread:95076] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '0'}, Args: {'arg_0': "'item-001'"})
+2025-04-26 12:20:15,905 - MockApiClient - INFO [OpID:get_mock_data_1745641215905] [RetryID:retry_fetch_data_1745641215905] [Other:request_type=initial_fetch] - [MainThread:95076] - 内部调用 fetch_data (第 1 次)
+2025-04-26 12:20:16,141 - MockApiClient - INFO [OpID:get_mock_data_1745641215905] [RetryID:retry_fetch_data_1745641215905] [Other:request_type=initial_fetch] - [MainThread:95076] - 成功获取项目 item-001 的数据
+2025-04-26 12:20:16,141 - MockApiClient - INFO [OpID:get_mock_data_1745641215905] [RetryID:retry_fetch_data_1745641215905] [Other:request_type=initial_fetch] - [MainThread:95076] - 查询/获取: 完成 - get_mock_data. 耗时: 235.00ms, 返回值: {'id': 'item-001', 'data': 'Data for item-001', 'timestamp': 1745641216.1413739, 'internal_call_count': 1}
+2025-04-26 12:20:16,141 - __main__ - INFO [RetryID:retry_fetch_data_1745641215905] [Other:request_type=initial_fetch] - [MainThread:95076] - 场景 1 结果: Data for item-001
+2025-04-26 12:20:16,242 - __main__ - INFO - [MainThread:95076] - 
+----- 场景 2: 缓存命中 (2秒内) -----
+2025-04-26 12:20:16,242 - MockApiClient - INFO [OpID:get_mock_data_1745641216242] [Other:request_type=cached_fetch,ctx_call_count=1] - [MainThread:95076] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '1'}, Args: {'arg_0': "'item-001'"})
+2025-04-26 12:20:16,243 - MockApiClient - INFO [OpID:get_mock_data_1745641216242] [Other:request_type=cached_fetch] - [MainThread:95076] - 查询/获取: 完成 - get_mock_data. 耗时: 0.00ms, 返回值: {'id': 'item-001', 'data': 'Data for item-001', 'timestamp': 1745641216.1413739, 'internal_call_count': 1}
+2025-04-26 12:20:16,243 - __main__ - INFO [Other:request_type=cached_fetch] - [MainThread:95076] - 场景 2 结果: Data for item-001 (应与场景1时间戳相同或接近)
+2025-04-26 12:20:16,243 - __main__ - INFO [Other:request_type=cached_fetch] - [MainThread:95076] - 缓存命中验证成功!
+2025-04-26 12:20:16,243 - __main__ - INFO - [MainThread:95076] - 
+----- 场景 3: 缓存失效 (等待超过2秒) -----
+2025-04-26 12:20:16,245 - __main__ - INFO - [MainThread:95076] - 等待 2.5 秒使缓存失效...
+2025-04-26 12:20:18,745 - MockApiClient - INFO [OpID:get_mock_data_1745641218745] [Other:request_type=expired_cache_fetch,ctx_call_count=1] - [MainThread:95076] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '1'}, Args: {'arg_0': "'item-001'"})
+2025-04-26 12:20:18,745 - MockApiClient - INFO [OpID:get_mock_data_1745641218745] [RetryID:retry_fetch_data_1745641218745] [Other:request_type=expired_cache_fetch] - [MainThread:95076] - 内部调用 fetch_data (第 2 次)
+2025-04-26 12:20:18,959 - MockApiClient - INFO [OpID:get_mock_data_1745641218745] [RetryID:retry_fetch_data_1745641218745] [Other:request_type=expired_cache_fetch] - [MainThread:95076] - 成功获取项目 item-001 的数据
+2025-04-26 12:20:18,960 - MockApiClient - INFO [OpID:get_mock_data_1745641218745] [RetryID:retry_fetch_data_1745641218745] [Other:request_type=expired_cache_fetch] - [MainThread:95076] - 查询/获取: 完成 - get_mock_data. 耗时: 219.00ms, 返回值: {'id': 'item-001', 'data': 'Data for item-001', 'timestamp': 1745641218.959734, 'internal_call_count': 2}
+2025-04-26 12:20:18,961 - __main__ - INFO [RetryID:retry_fetch_data_1745641218745] [Other:request_type=expired_cache_fetch] - [MainThread:95076] - 场景 3 结果: Data for item-001 (时间戳应更新)
+2025-04-26 12:20:18,961 - __main__ - INFO [RetryID:retry_fetch_data_1745641218745] [Other:request_type=expired_cache_fetch] - [MainThread:95076] - 缓存失效验证成功!
+2025-04-26 12:20:18,961 - __main__ - INFO - [MainThread:95076] - 
+----- 场景 4: 可重试的网络错误 -----
+2025-04-26 12:20:18,962 - MockApiClient - INFO [OpID:get_mock_data_1745641218962] [Other:request_type=retry_network,ctx_call_count=2] - [MainThread:95076] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '2'}, Args: {'arg_0': "'item-002'", 'force_error': "'network'"})
+2025-04-26 12:20:18,963 - MockApiClient - INFO [OpID:get_mock_data_1745641218962] [RetryID:retry_fetch_data_1745641218963] [Other:request_type=retry_network] - [MainThread:95076] - 内部调用 fetch_data (第 3 次)
+2025-04-26 12:20:18,963 - MockApiClient - WARNING [OpID:get_mock_data_1745641218962] [RetryID:retry_fetch_data_1745641218963] [Other:request_type=retry_network] - [MainThread:95076] - 模拟网络错误 (第 1 次)
+2025-04-26 12:20:18,963 - MockApiClient - WARNING [OpID:get_mock_data_1745641218962] [ErrID:retry_attempt_1_fetch_data_1745641218963] [RetryID:retry_fetch_data_1745641218963] [Other:request_type=retry_network] - [MainThread:95076] - 操作失败将重试: fetch_data 尝试 1/4 失败。 错误: ConnectionError('模拟的网络连接中断') [ErrorID: retry_attempt_1_fetch_data_1745641218963]. 等待 0.26 秒后重试...
+2025-04-26 12:20:19,228 - MockApiClient - INFO [OpID:get_mock_data_1745641218962] [RetryID:retry_fetch_data_1745641218963] [Other:request_type=retry_network] - [MainThread:95076] - 内部调用 fetch_data (第 4 次)
+2025-04-26 12:20:19,228 - MockApiClient - WARNING [OpID:get_mock_data_1745641218962] [RetryID:retry_fetch_data_1745641218963] [Other:request_type=retry_network] - [MainThread:95076] - 模拟网络错误 (第 2 次)
+2025-04-26 12:20:19,230 - MockApiClient - WARNING [OpID:get_mock_data_1745641218962] [ErrID:retry_attempt_2_fetch_data_1745641219230] [RetryID:retry_fetch_data_1745641218963] [Other:request_type=retry_network] - [MainThread:95076] - 操作失败将重试: fetch_data 尝试 2/4 失败。 错误: ConnectionError('模拟的网络连接中断') [ErrorID: retry_attempt_2_fetch_data_1745641219230]. 等待 0.59 秒后重试...
+2025-04-26 12:20:19,821 - MockApiClient - INFO [OpID:get_mock_data_1745641218962] [RetryID:retry_fetch_data_1745641218963] [Other:request_type=retry_network] - [MainThread:95076] - 内部调用 fetch_data (第 5 次)
+2025-04-26 12:20:19,821 - MockApiClient - INFO [OpID:get_mock_data_1745641218962] [RetryID:retry_fetch_data_1745641218963] [Other:request_type=retry_network] - [MainThread:95076] - 网络错误后恢复
+2025-04-26 12:20:20,031 - MockApiClient - INFO [OpID:get_mock_data_1745641218962] [RetryID:retry_fetch_data_1745641218963] [Other:request_type=retry_network] - [MainThread:95076] - 成功获取项目 item-002 的数据
+2025-04-26 12:20:20,032 - MockApiClient - INFO [OpID:get_mock_data_1745641218962] [RetryID:retry_fetch_data_1745641218963] [Other:request_type=retry_network] - [MainThread:95076] - 重试成功: fetch_data 在第 3 次尝试成功。
+2025-04-26 12:20:20,032 - MockApiClient - INFO [OpID:get_mock_data_1745641218962] [RetryID:retry_fetch_data_1745641218963] [Other:request_type=retry_network] - [MainThread:95076] - 查询/获取: 完成 - get_mock_data. 耗时: 1062.00ms, 返回值: {'id': 'item-002', 'data': 'Data for item-002', 'timestamp': 1745641220.031491, 'internal_call_count': 5}
+2025-04-26 12:20:20,033 - __main__ - INFO [RetryID:retry_fetch_data_1745641218963] [Other:request_type=retry_network] - [MainThread:95076] - 场景 4 结果: Data for item-002 (经历重试后成功)
+2025-04-26 12:20:20,033 - __main__ - INFO - [MainThread:95076] - 
+----- 场景 5: 可重试的 API 限流错误 -----
+2025-04-26 12:20:20,034 - MockApiClient - INFO [OpID:get_mock_data_1745641220034] [Other:request_type=retry_ratelimit,ctx_call_count=5] - [MainThread:95076] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '5'}, Args: {'arg_0': "'item-003'", 'force_error': "'ratelimit'"})
+2025-04-26 12:20:20,034 - MockApiClient - INFO [OpID:get_mock_data_1745641220034] [RetryID:retry_fetch_data_1745641220034] [Other:request_type=retry_ratelimit] - [MainThread:95076] - 内部调用 fetch_data (第 6 次)
+2025-04-26 12:20:20,034 - MockApiClient - WARNING [OpID:get_mock_data_1745641220034] [RetryID:retry_fetch_data_1745641220034] [Other:request_type=retry_ratelimit] - [MainThread:95076] - 模拟触发速率限制 (第 1 次)
+2025-04-26 12:20:20,034 - MockApiClient - WARNING [OpID:get_mock_data_1745641220034] [ErrID:retry_attempt_1_fetch_data_1745641220034] [RetryID:retry_fetch_data_1745641220034] [Other:request_type=retry_ratelimit] - [MainThread:95076] - 操作失败将重试: fetch_data 尝试 1/4 失败。 错误: ApiException('Error 1004 (RATE_LIMIT_ERROR): 请求过于频繁') (Code: RATE_LIMIT_ERROR) [ErrorID: retry_attempt_1_fetch_data_1745641220034]. 等待 0.26 秒后重试...
+2025-04-26 12:20:20,298 - MockApiClient - INFO [OpID:get_mock_data_1745641220034] [RetryID:retry_fetch_data_1745641220034] [Other:request_type=retry_ratelimit] - [MainThread:95076] - 内部调用 fetch_data (第 7 次)
+2025-04-26 12:20:20,298 - MockApiClient - WARNING [OpID:get_mock_data_1745641220034] [RetryID:retry_fetch_data_1745641220034] [Other:request_type=retry_ratelimit] - [MainThread:95076] - 模拟触发速率限制 (第 2 次)
+2025-04-26 12:20:20,299 - MockApiClient - WARNING [OpID:get_mock_data_1745641220034] [ErrID:retry_attempt_2_fetch_data_1745641220299] [RetryID:retry_fetch_data_1745641220034] [Other:request_type=retry_ratelimit] - [MainThread:95076] - 操作失败将重试: fetch_data 尝试 2/4 失败。 错误: ApiException('Error 1004 (RATE_LIMIT_ERROR): 请求过于频繁') (Code: RATE_LIMIT_ERROR) [ErrorID: retry_attempt_2_fetch_data_1745641220299]. 等待 0.56 秒后重试...
+2025-04-26 12:20:20,864 - MockApiClient - INFO [OpID:get_mock_data_1745641220034] [RetryID:retry_fetch_data_1745641220034] [Other:request_type=retry_ratelimit] - [MainThread:95076] - 内部调用 fetch_data (第 8 次)
+2025-04-26 12:20:20,865 - MockApiClient - INFO [OpID:get_mock_data_1745641220034] [RetryID:retry_fetch_data_1745641220034] [Other:request_type=retry_ratelimit] - [MainThread:95076] - 速率限制解除
+2025-04-26 12:20:21,134 - MockApiClient - INFO [OpID:get_mock_data_1745641220034] [RetryID:retry_fetch_data_1745641220034] [Other:request_type=retry_ratelimit] - [MainThread:95076] - 成功获取项目 item-003 的数据
+2025-04-26 12:20:21,135 - MockApiClient - INFO [OpID:get_mock_data_1745641220034] [RetryID:retry_fetch_data_1745641220034] [Other:request_type=retry_ratelimit] - [MainThread:95076] - 重试成功: fetch_data 在第 3 次尝试成功。
+2025-04-26 12:20:21,135 - MockApiClient - INFO [OpID:get_mock_data_1745641220034] [RetryID:retry_fetch_data_1745641220034] [Other:request_type=retry_ratelimit] - [MainThread:95076] - 查询/获取: 完成 - get_mock_data. 耗时: 1110.00ms, 返回值: {'id': 'item-003', 'data': 'Data for item-003', 'timestamp': 1745641221.1347961, 'internal_call_count': 8}
+2025-04-26 12:20:21,135 - __main__ - INFO [RetryID:retry_fetch_data_1745641220034] [Other:request_type=retry_ratelimit] - [MainThread:95076] - 场景 5 结果: Data for item-003 (速率限制后成功)
+2025-04-26 12:20:21,136 - __main__ - INFO - [MainThread:95076] - 
+----- 场景 6: 不可重试的 API 错误 (NotFound) -----
+2025-04-26 12:20:21,136 - MockApiClient - INFO [OpID:get_mock_data_1745641221136] [Other:request_type=non_retryable_api_error,ctx_call_count=8] - [MainThread:95076] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '8'}, Args: {'arg_0': "'item-unknown'", 'force_error': "'notfound'"})
+2025-04-26 12:20:21,136 - MockApiClient - INFO [OpID:get_mock_data_1745641221136] [RetryID:retry_fetch_data_1745641221136] [Other:request_type=non_retryable_api_error] - [MainThread:95076] - 内部调用 fetch_data (第 9 次)
+2025-04-26 12:20:21,136 - MockApiClient - WARNING [OpID:get_mock_data_1745641221136] [RetryID:retry_fetch_data_1745641221136] [Other:request_type=non_retryable_api_error] - [MainThread:95076] - 模拟资源未找到错误
+2025-04-26 12:20:21,136 - MockApiClient - WARNING [OpID:get_mock_data_1745641221136] [RetryID:retry_fetch_data_1745641221136] [Other:request_type=non_retryable_api_error] - [MainThread:95076] - 重试终止: fetch_data 失败，尝试 1/4 次。 错误: ApiException('Error 4004 (RESOURCE_NOT_FOUND): 项目 item-unknown 未找到') (Code: RESOURCE_NOT_FOUND) [ErrorID: None] (不可重试)
+2025-04-26 12:20:21,137 - MockApiClient - ERROR [OpID:get_mock_data_1745641221136] [ErrID:api_RESOURCE_NOT_FOUND_get_mock_data_1745641221137] [RetryID:retry_fetch_data_1745641221136] [Other:request_type=non_retryable_api_error] - [MainThread:95076] - 查询/获取: 失败 - get_mock_data. Code: RESOURCE_NOT_FOUND, Msg: 项目 item-unknown 未找到
+2025-04-26 12:20:21,137 - __main__ - INFO [RetryID:retry_fetch_data_1745641221136] [Other:request_type=non_retryable_api_error] - [MainThread:95076] - 场景 6 成功捕获 NotFound 错误: 项目 item-unknown 未找到 (ErrID: None)
+2025-04-26 12:20:21,137 - __main__ - INFO - [MainThread:95076] - 
+----- 场景 7: 捕获其他异常 -----
+2025-04-26 12:20:21,140 - global_errors - CRITICAL - [MainThread:95076] - [全局异常 ErrID:global_KeyError_1745641221138] 捕获到未处理的异常: KeyError: 'extra'\n详细堆栈跟踪:\nTraceback (most recent call last):
+  File "d:\100-Work\101_Programming\Projs\01.python_projs\yastool\tests\test_usage.py", line 198, in run_demo
+    result = 10 / 0
+             ~~~^~~
+ZeroDivisionError: division by zero
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "d:\100-Work\101_Programming\Projs\01.python_projs\yastool\tests\test_usage.py", line 211, in <module>
+    run_demo()
+  File "d:\100-Work\101_Programming\Projs\01.python_projs\yastool\tests\test_usage.py", line 201, in run_demo
+    log_exception(logger_name=__name__, message="计算失败")
+  File "D:\100-Work\101_Programming\Env\pythonEnv\pyenv-win\versions\3.11.5\Lib\site-packages\yastool\common\logger.py", line 959, in log_exception
+    logger.error(
+  File "D:\100-Work\101_Programming\Env\pythonEnv\pyenv-win\versions\3.11.5\Lib\site-packages\yastool\common\logger.py", line 381, in error
+    self._logger.error(msg, *args, extra={'log_context': log_ctx}, **kwargs)
+KeyError: 'extra'
+
+2025-04-26 12:21:15,968 - yastool.common.logger - INFO - [MainThread:93864] - 全局异常处理器已安装。
+2025-04-26 12:21:15,968 - root - INFO - [MainThread:93864] - 日志系统初始化完成.
+2025-04-26 12:21:15,973 - yastool.common.logger - WARNING - [MainThread:93864] - 日志系统已初始化，忽略本次 setup_logging 的参数。如需更改配置，请使用 LogManager 的实例方法。
+2025-04-26 12:21:15,973 - __main__ - INFO - [MainThread:93864] - ===== 开始 yastool 使用演示 =====
+2025-04-26 12:21:15,973 - __main__ - INFO - [MainThread:93864] - 
+----- 场景 1: 首次成功调用 -----
+2025-04-26 12:21:15,975 - MockApiClient - INFO [OpID:get_mock_data_1745641275975] [Other:request_type=initial_fetch,ctx_call_count=0] - [MainThread:93864] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '0'}, Args: {'arg_0': "'item-001'"})
+2025-04-26 12:21:15,975 - MockApiClient - INFO [OpID:get_mock_data_1745641275975] [RetryID:retry_fetch_data_1745641275975] [Other:request_type=initial_fetch] - [MainThread:93864] - 内部调用 fetch_data (第 1 次)
+2025-04-26 12:21:16,208 - MockApiClient - INFO [OpID:get_mock_data_1745641275975] [RetryID:retry_fetch_data_1745641275975] [Other:request_type=initial_fetch] - [MainThread:93864] - 成功获取项目 item-001 的数据
+2025-04-26 12:21:16,208 - MockApiClient - INFO [OpID:get_mock_data_1745641275975] [RetryID:retry_fetch_data_1745641275975] [Other:request_type=initial_fetch] - [MainThread:93864] - 查询/获取: 完成 - get_mock_data. 耗时: 218.00ms, 返回值: {'id': 'item-001', 'data': 'Data for item-001', 'timestamp': 1745641276.2080097, 'internal_call_count': 1}
+2025-04-26 12:21:16,208 - __main__ - INFO [RetryID:retry_fetch_data_1745641275975] [Other:request_type=initial_fetch] - [MainThread:93864] - 场景 1 结果: Data for item-001
+2025-04-26 12:21:16,310 - __main__ - INFO - [MainThread:93864] - 
+----- 场景 2: 缓存命中 (2秒内) -----
+2025-04-26 12:21:16,310 - MockApiClient - INFO [OpID:get_mock_data_1745641276310] [Other:request_type=cached_fetch,ctx_call_count=1] - [MainThread:93864] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '1'}, Args: {'arg_0': "'item-001'"})
+2025-04-26 12:21:16,311 - MockApiClient - INFO [OpID:get_mock_data_1745641276310] [Other:request_type=cached_fetch] - [MainThread:93864] - 查询/获取: 完成 - get_mock_data. 耗时: 0.00ms, 返回值: {'id': 'item-001', 'data': 'Data for item-001', 'timestamp': 1745641276.2080097, 'internal_call_count': 1}
+2025-04-26 12:21:16,311 - __main__ - INFO [Other:request_type=cached_fetch] - [MainThread:93864] - 场景 2 结果: Data for item-001 (应与场景1时间戳相同或接近)
+2025-04-26 12:21:16,311 - __main__ - INFO [Other:request_type=cached_fetch] - [MainThread:93864] - 缓存命中验证成功!
+2025-04-26 12:21:16,311 - __main__ - INFO - [MainThread:93864] - 
+----- 场景 3: 缓存失效 (等待超过2秒) -----
+2025-04-26 12:21:16,312 - __main__ - INFO - [MainThread:93864] - 等待 2.5 秒使缓存失效...
+2025-04-26 12:21:18,812 - MockApiClient - INFO [OpID:get_mock_data_1745641278812] [Other:request_type=expired_cache_fetch,ctx_call_count=1] - [MainThread:93864] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '1'}, Args: {'arg_0': "'item-001'"})
+2025-04-26 12:21:18,813 - MockApiClient - INFO [OpID:get_mock_data_1745641278812] [RetryID:retry_fetch_data_1745641278812] [Other:request_type=expired_cache_fetch] - [MainThread:93864] - 内部调用 fetch_data (第 2 次)
+2025-04-26 12:21:19,079 - MockApiClient - INFO [OpID:get_mock_data_1745641278812] [RetryID:retry_fetch_data_1745641278812] [Other:request_type=expired_cache_fetch] - [MainThread:93864] - 成功获取项目 item-001 的数据
+2025-04-26 12:21:19,079 - MockApiClient - INFO [OpID:get_mock_data_1745641278812] [RetryID:retry_fetch_data_1745641278812] [Other:request_type=expired_cache_fetch] - [MainThread:93864] - 查询/获取: 完成 - get_mock_data. 耗时: 265.00ms, 返回值: {'id': 'item-001', 'data': 'Data for item-001', 'timestamp': 1745641279.0797644, 'internal_call_count': 2}
+2025-04-26 12:21:19,079 - __main__ - INFO [RetryID:retry_fetch_data_1745641278812] [Other:request_type=expired_cache_fetch] - [MainThread:93864] - 场景 3 结果: Data for item-001 (时间戳应更新)
+2025-04-26 12:21:19,080 - __main__ - INFO [RetryID:retry_fetch_data_1745641278812] [Other:request_type=expired_cache_fetch] - [MainThread:93864] - 缓存失效验证成功!
+2025-04-26 12:21:19,080 - __main__ - INFO - [MainThread:93864] - 
+----- 场景 4: 可重试的网络错误 -----
+2025-04-26 12:21:19,080 - MockApiClient - INFO [OpID:get_mock_data_1745641279080] [Other:request_type=retry_network,ctx_call_count=2] - [MainThread:93864] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '2'}, Args: {'arg_0': "'item-002'", 'force_error': "'network'"})
+2025-04-26 12:21:19,080 - MockApiClient - INFO [OpID:get_mock_data_1745641279080] [RetryID:retry_fetch_data_1745641279080] [Other:request_type=retry_network] - [MainThread:93864] - 内部调用 fetch_data (第 3 次)
+2025-04-26 12:21:19,081 - MockApiClient - WARNING [OpID:get_mock_data_1745641279080] [RetryID:retry_fetch_data_1745641279080] [Other:request_type=retry_network] - [MainThread:93864] - 模拟网络错误 (第 1 次)
+2025-04-26 12:21:19,081 - MockApiClient - WARNING [OpID:get_mock_data_1745641279080] [ErrID:retry_attempt_1_fetch_data_1745641279081] [RetryID:retry_fetch_data_1745641279080] [Other:request_type=retry_network] - [MainThread:93864] - 操作失败将重试: fetch_data 尝试 1/4 失败。 错误: ConnectionError('模拟的网络连接中断') [ErrorID: retry_attempt_1_fetch_data_1745641279081]. 等待 0.30 秒后重试...
+2025-04-26 12:21:19,380 - MockApiClient - INFO [OpID:get_mock_data_1745641279080] [RetryID:retry_fetch_data_1745641279080] [Other:request_type=retry_network] - [MainThread:93864] - 内部调用 fetch_data (第 4 次)
+2025-04-26 12:21:19,381 - MockApiClient - WARNING [OpID:get_mock_data_1745641279080] [RetryID:retry_fetch_data_1745641279080] [Other:request_type=retry_network] - [MainThread:93864] - 模拟网络错误 (第 2 次)
+2025-04-26 12:21:19,381 - MockApiClient - WARNING [OpID:get_mock_data_1745641279080] [ErrID:retry_attempt_2_fetch_data_1745641279381] [RetryID:retry_fetch_data_1745641279080] [Other:request_type=retry_network] - [MainThread:93864] - 操作失败将重试: fetch_data 尝试 2/4 失败。 错误: ConnectionError('模拟的网络连接中断') [ErrorID: retry_attempt_2_fetch_data_1745641279381]. 等待 0.56 秒后重试...
+2025-04-26 12:21:19,944 - MockApiClient - INFO [OpID:get_mock_data_1745641279080] [RetryID:retry_fetch_data_1745641279080] [Other:request_type=retry_network] - [MainThread:93864] - 内部调用 fetch_data (第 5 次)
+2025-04-26 12:21:19,944 - MockApiClient - INFO [OpID:get_mock_data_1745641279080] [RetryID:retry_fetch_data_1745641279080] [Other:request_type=retry_network] - [MainThread:93864] - 网络错误后恢复
+2025-04-26 12:21:20,245 - MockApiClient - INFO [OpID:get_mock_data_1745641279080] [RetryID:retry_fetch_data_1745641279080] [Other:request_type=retry_network] - [MainThread:93864] - 成功获取项目 item-002 的数据
+2025-04-26 12:21:20,245 - MockApiClient - INFO [OpID:get_mock_data_1745641279080] [RetryID:retry_fetch_data_1745641279080] [Other:request_type=retry_network] - [MainThread:93864] - 重试成功: fetch_data 在第 3 次尝试成功。
+2025-04-26 12:21:20,245 - MockApiClient - INFO [OpID:get_mock_data_1745641279080] [RetryID:retry_fetch_data_1745641279080] [Other:request_type=retry_network] - [MainThread:93864] - 查询/获取: 完成 - get_mock_data. 耗时: 1172.00ms, 返回值: {'id': 'item-002', 'data': 'Data for item-002', 'timestamp': 1745641280.2452219, 'internal_call_count': 5}
+2025-04-26 12:21:20,246 - __main__ - INFO [RetryID:retry_fetch_data_1745641279080] [Other:request_type=retry_network] - [MainThread:93864] - 场景 4 结果: Data for item-002 (经历重试后成功)
+2025-04-26 12:21:20,246 - __main__ - INFO - [MainThread:93864] - 
+----- 场景 5: 可重试的 API 限流错误 -----
+2025-04-26 12:21:20,246 - MockApiClient - INFO [OpID:get_mock_data_1745641280246] [Other:request_type=retry_ratelimit,ctx_call_count=5] - [MainThread:93864] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '5'}, Args: {'arg_0': "'item-003'", 'force_error': "'ratelimit'"})
+2025-04-26 12:21:20,246 - MockApiClient - INFO [OpID:get_mock_data_1745641280246] [RetryID:retry_fetch_data_1745641280246] [Other:request_type=retry_ratelimit] - [MainThread:93864] - 内部调用 fetch_data (第 6 次)
+2025-04-26 12:21:20,246 - MockApiClient - WARNING [OpID:get_mock_data_1745641280246] [RetryID:retry_fetch_data_1745641280246] [Other:request_type=retry_ratelimit] - [MainThread:93864] - 模拟触发速率限制 (第 1 次)
+2025-04-26 12:21:20,246 - MockApiClient - WARNING [OpID:get_mock_data_1745641280246] [ErrID:retry_attempt_1_fetch_data_1745641280246] [RetryID:retry_fetch_data_1745641280246] [Other:request_type=retry_ratelimit] - [MainThread:93864] - 操作失败将重试: fetch_data 尝试 1/4 失败。 错误: ApiException('Error 1004 (RATE_LIMIT_ERROR): 请求过于频繁') (Code: RATE_LIMIT_ERROR) [ErrorID: retry_attempt_1_fetch_data_1745641280246]. 等待 0.26 秒后重试...
+2025-04-26 12:21:20,508 - MockApiClient - INFO [OpID:get_mock_data_1745641280246] [RetryID:retry_fetch_data_1745641280246] [Other:request_type=retry_ratelimit] - [MainThread:93864] - 内部调用 fetch_data (第 7 次)
+2025-04-26 12:21:20,509 - MockApiClient - WARNING [OpID:get_mock_data_1745641280246] [RetryID:retry_fetch_data_1745641280246] [Other:request_type=retry_ratelimit] - [MainThread:93864] - 模拟触发速率限制 (第 2 次)
+2025-04-26 12:21:20,509 - MockApiClient - WARNING [OpID:get_mock_data_1745641280246] [ErrID:retry_attempt_2_fetch_data_1745641280509] [RetryID:retry_fetch_data_1745641280246] [Other:request_type=retry_ratelimit] - [MainThread:93864] - 操作失败将重试: fetch_data 尝试 2/4 失败。 错误: ApiException('Error 1004 (RATE_LIMIT_ERROR): 请求过于频繁') (Code: RATE_LIMIT_ERROR) [ErrorID: retry_attempt_2_fetch_data_1745641280509]. 等待 0.45 秒后重试...
+2025-04-26 12:21:20,961 - MockApiClient - INFO [OpID:get_mock_data_1745641280246] [RetryID:retry_fetch_data_1745641280246] [Other:request_type=retry_ratelimit] - [MainThread:93864] - 内部调用 fetch_data (第 8 次)
+2025-04-26 12:21:20,962 - MockApiClient - INFO [OpID:get_mock_data_1745641280246] [RetryID:retry_fetch_data_1745641280246] [Other:request_type=retry_ratelimit] - [MainThread:93864] - 速率限制解除
+2025-04-26 12:21:21,099 - MockApiClient - INFO [OpID:get_mock_data_1745641280246] [RetryID:retry_fetch_data_1745641280246] [Other:request_type=retry_ratelimit] - [MainThread:93864] - 成功获取项目 item-003 的数据
+2025-04-26 12:21:21,099 - MockApiClient - INFO [OpID:get_mock_data_1745641280246] [RetryID:retry_fetch_data_1745641280246] [Other:request_type=retry_ratelimit] - [MainThread:93864] - 重试成功: fetch_data 在第 3 次尝试成功。
+2025-04-26 12:21:21,100 - MockApiClient - INFO [OpID:get_mock_data_1745641280246] [RetryID:retry_fetch_data_1745641280246] [Other:request_type=retry_ratelimit] - [MainThread:93864] - 查询/获取: 完成 - get_mock_data. 耗时: 860.00ms, 返回值: {'id': 'item-003', 'data': 'Data for item-003', 'timestamp': 1745641281.0993836, 'internal_call_count': 8}
+2025-04-26 12:21:21,101 - __main__ - INFO [RetryID:retry_fetch_data_1745641280246] [Other:request_type=retry_ratelimit] - [MainThread:93864] - 场景 5 结果: Data for item-003 (速率限制后成功)
+2025-04-26 12:21:21,101 - __main__ - INFO - [MainThread:93864] - 
+----- 场景 6: 不可重试的 API 错误 (NotFound) -----
+2025-04-26 12:21:21,101 - MockApiClient - INFO [OpID:get_mock_data_1745641281101] [Other:request_type=non_retryable_api_error,ctx_call_count=8] - [MainThread:93864] - 查询/获取: 开始 - get_mock_data (ContextAttrs: {'call_count': '8'}, Args: {'arg_0': "'item-unknown'", 'force_error': "'notfound'"})
+2025-04-26 12:21:21,102 - MockApiClient - INFO [OpID:get_mock_data_1745641281101] [RetryID:retry_fetch_data_1745641281102] [Other:request_type=non_retryable_api_error] - [MainThread:93864] - 内部调用 fetch_data (第 9 次)
+2025-04-26 12:21:21,102 - MockApiClient - WARNING [OpID:get_mock_data_1745641281101] [RetryID:retry_fetch_data_1745641281102] [Other:request_type=non_retryable_api_error] - [MainThread:93864] - 模拟资源未找到错误
+2025-04-26 12:21:21,102 - MockApiClient - WARNING [OpID:get_mock_data_1745641281101] [RetryID:retry_fetch_data_1745641281102] [Other:request_type=non_retryable_api_error] - [MainThread:93864] - 重试终止: fetch_data 失败，尝试 1/4 次。 错误: ApiException('Error 4004 (RESOURCE_NOT_FOUND): 项目 item-unknown 未找到') (Code: RESOURCE_NOT_FOUND) [ErrorID: None] (不可重试)
+2025-04-26 12:21:21,103 - MockApiClient - ERROR [OpID:get_mock_data_1745641281101] [ErrID:api_RESOURCE_NOT_FOUND_get_mock_data_1745641281103] [RetryID:retry_fetch_data_1745641281102] [Other:request_type=non_retryable_api_error] - [MainThread:93864] - 查询/获取: 失败 - get_mock_data. Code: RESOURCE_NOT_FOUND, Msg: 项目 item-unknown 未找到
+2025-04-26 12:21:21,103 - __main__ - INFO [RetryID:retry_fetch_data_1745641281102] [Other:request_type=non_retryable_api_error] - [MainThread:93864] - 场景 6 成功捕获 NotFound 错误: 项目 item-unknown 未找到 (ErrID: None)
+2025-04-26 12:21:21,104 - __main__ - INFO - [MainThread:93864] - 
+----- 场景 7: 捕获其他异常 -----
+2025-04-26 12:21:21,105 - __main__ - ERROR [ErrID:auto_error_log_exception_1745641281105] [Other:request_type=unhandled_exception_test] - [MainThread:93864] - 计算失败
+Traceback (most recent call last):
+  File "d:\100-Work\101_Programming\Projs\01.python_projs\yastool\tests\test_usage.py", line 198, in run_demo
+    result = 10 / 0
+             ~~~^~~
+ZeroDivisionError: division by zero
+2025-04-26 12:21:21,109 - __main__ - INFO [ErrID:auto_error_log_exception_1745641281105] [Other:request_type=unhandled_exception_test] - [MainThread:93864] - 场景 7 成功捕获并记录了除零异常
+2025-04-26 12:21:21,110 - __main__ - INFO - [MainThread:93864] - 
+===== yastool 使用演示结束 =====
+2025-04-26 12:24:59,865 - yastool.common.logger - INFO - [MainThread:85872] - 全局异常处理器已安装。
+2025-04-26 12:24:59,865 - root - INFO - [MainThread:85872] - 日志系统初始化完成.
+2025-04-26 12:24:59,867 - yastool.common.logger - WARNING - [MainThread:85872] - 日志系统已初始化，忽略本次 setup_logging 的参数。如需更改配置，请使用 LogManager 的实例方法。
+2025-04-26 12:24:59,997 - __main__ - INFO - [MainThread:85872] - 已安装全局异常处理器，并设置了主窗口。
+2025-04-26 12:25:00,225 - __main__ - INFO - [MainThread:85872] - 测试窗口已显示。请点击按钮测试错误处理。
+2025-04-26 12:25:05,062 - __main__ - INFO - [MainThread:85872] - 正在手动触发 show_error...
+2025-04-26 12:25:05,065 - yastool.common.logger - INFO - [MainThread:85872] - 尝试在主线程中异步显示错误消息框。
+2025-04-26 12:25:05,066 - __main__ - INFO - [MainThread:85872] - 手动错误对话框已成功显示并关闭。
+2025-04-26 12:25:09,473 - __main__ - INFO - [MainThread:85872] - 正在触发一个未处理的 ZeroDivisionError...
+2025-04-26 12:25:09,473 - global_errors - CRITICAL - [MainThread:85872] - [全局异常 ErrID:global_ZeroDivisionError_1745641509473] 捕获到未处理的异常: ZeroDivisionError: division by zero\n详细堆栈跟踪:\nTraceback (most recent call last):
+  File "d:\100-Work\101_Programming\Projs\01.python_projs\yastool\tests\test_gui_error.py", line 53, in trigger_unhandled_exception
+    result = 1 / 0
+             ~~^~~
+ZeroDivisionError: division by zero
+
+2025-04-26 12:25:14,140 - __main__ - INFO - [MainThread:85872] - 正在手动触发 show_error...
+2025-04-26 12:25:14,141 - yastool.common.logger - INFO - [MainThread:85872] - 尝试在主线程中异步显示错误消息框。
+2025-04-26 12:25:14,141 - __main__ - INFO - [MainThread:85872] - 手动错误对话框已成功显示并关闭。
+2025-04-26 12:46:15,920 - yastool.common.logger - INFO - [MainThread:58004] - 全局异常处理器已安装。
+2025-04-26 12:46:15,920 - root - INFO - [MainThread:58004] - 日志系统初始化完成.
+2025-04-26 12:46:15,921 - yastool.common.logger - WARNING - [MainThread:58004] - 日志系统已初始化，忽略本次 setup_logging 的参数。如需更改配置，请使用 LogManager 的实例方法。
+2025-04-26 12:46:16,036 - __main__ - INFO - [MainThread:58004] - 已安装全局异常处理器，并设置了主窗口。
+2025-04-26 12:46:16,213 - __main__ - INFO - [MainThread:58004] - 测试窗口已显示。请点击按钮测试错误处理。
+2025-04-26 12:46:17,908 - __main__ - INFO - [MainThread:58004] - 正在手动触发 show_error...
+2025-04-26 12:46:17,909 - yastool.common.logger - INFO - [MainThread:58004] - 尝试在主线程中异步显示错误消息框。
+2025-04-26 12:46:17,909 - __main__ - INFO - [MainThread:58004] - 手动错误对话框已成功显示并关闭。
+2025-04-26 12:46:20,263 - __main__ - INFO - [MainThread:58004] - 正在触发一个未处理的 ZeroDivisionError...
+2025-04-26 12:46:20,265 - global_errors - CRITICAL - [MainThread:58004] - [全局异常 ErrID:global_ZeroDivisionError_1745642780263] 捕获到未处理的异常: ZeroDivisionError: division by zero
+详细堆栈跟踪:
+Traceback (most recent call last):
+  File "D:\100-Work\101_Programming\Projs\01.python_projs\yastool\tests\test_gui_error.py", line 53, in trigger_unhandled_exception
+    result = 1 / 0
+             ~~^~~
+ZeroDivisionError: division by zero
+
+2025-04-26 12:46:20,266 - yastool.common.logger - INFO - [MainThread:58004] - 尝试在主线程中异步显示错误消息框。
